@@ -58,12 +58,14 @@
         "pointer": "/status_after",
         "effects": [
             {
-                "kind": "truthy_keys",
-                "include_fields": [],
-                "exclude_fields": [
+                "kind": "filter_keys",
+                "exclude": [
                     "busy",
                     "off"
                 ]
+            },
+            {
+                "kind": "truthy_keys"
             }
         ]
     }
