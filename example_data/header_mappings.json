@@ -1,0 +1,18 @@
+{
+    "Desired Current (A)": "/desired_current",
+    "Reported Current (A)": "/measured_psu_current",
+    "Expected Voltage (V)": "/expected_voltage",
+    "Reported Voltage (V)": "/measured_psu_voltage",
+    "Expected Power (W)": "/expected_power",
+    "Reported Power (W)": "/measured_psu_power",
+    "Powered Off": "/status_after/off",
+    "Reported Faults": {
+        "filter_kind": "truthy_keys",
+        "root_pointer": "/status_after",
+        "include_fields": [],
+        "exclude_fields": [
+            "busy",
+            "off"
+        ]
+    }
+}
