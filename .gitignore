@@ -3,3 +3,6 @@
 
 # Example Output (only in root)
 /*.csv
+
+# Crapple
+.DS_Store
