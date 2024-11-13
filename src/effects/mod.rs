@@ -1,9 +1,11 @@
+mod numbers;
 mod truthy_keys;
 
 use serde::Deserialize;
 
 use serde_json::{Result, Value};
 
+use self::numbers::{CeilEffect, FloorEffect, RoundEffect};
 use self::truthy_keys::TruthyKeys;
 
 pub trait Effect {
@@ -46,5 +48,11 @@ impl_map_effect_enum! {
     pub enum MapEffect {
         #[serde(rename = "truthy_keys")]
         TruthyKeys(TruthyKeys),
+        #[serde(rename = "round")]
+        Round(RoundEffect),
+        #[serde(rename = "floor")]
+        Floor(FloorEffect),
+        #[serde(rename = "ceil")]
+        Ceil(CeilEffect),
     }
 }

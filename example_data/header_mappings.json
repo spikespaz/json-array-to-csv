@@ -1,10 +1,58 @@
 {
-    "Desired Current (A)": "/desired_current",
-    "Reported Current (A)": "/measured_psu_current",
-    "Expected Voltage (V)": "/expected_voltage",
-    "Reported Voltage (V)": "/measured_psu_voltage",
-    "Expected Power (W)": "/expected_power",
-    "Reported Power (W)": "/measured_psu_power",
+    "Desired Current (A)": {
+        "pointer": "/desired_current",
+        "effects": [
+            {
+                "kind": "round",
+                "decimals": 2
+            }
+        ]
+    },
+    "Reported Current (A)": {
+        "pointer": "/measured_psu_current",
+        "effects": [
+            {
+                "kind": "round",
+                "decimals": 2
+            }
+        ]
+    },
+    "Expected Voltage (V)": {
+        "pointer": "/expected_voltage",
+        "effects": [
+            {
+                "kind": "round",
+                "decimals": 2
+            }
+        ]
+    },
+    "Reported Voltage (V)": {
+        "pointer": "/measured_psu_voltage",
+        "effects": [
+            {
+                "kind": "round",
+                "decimals": 2
+            }
+        ]
+    },
+    "Expected Power (W)": {
+        "pointer": "/expected_power",
+        "effects": [
+            {
+                "kind": "floor",
+                "decimals": 0
+            }
+        ]
+    },
+    "Reported Power (W)": {
+        "pointer": "/measured_psu_power",
+        "effects": [
+            {
+                "kind": "floor",
+                "decimals": 0
+            }
+        ]
+    },
     "Powered Off": "/status_after/off",
     "Reported Faults": {
         "pointer": "/status_after",
