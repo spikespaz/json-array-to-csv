@@ -5,7 +5,7 @@ mod header_map;
 use bpaf::Bpaf;
 
 use self::cli_io::{Input, Output};
-use self::header_map::{FieldMapper, HeaderMap};
+use self::header_map::HeaderMap;
 
 /// Convert a JSON file (with top-level array) to a CSV table.
 #[derive(Clone, Debug, Bpaf)]
@@ -44,7 +44,8 @@ fn main() -> anyhow::Result<()> {
     for record in &json_records {
         for mapper in header_map.values() {
             fields.push(
-                FieldMapper::map_record(mapper, record)
+                mapper
+                    .resolve(record)
                     .and_then(|cell_val| serde_json::to_string(&cell_val))?,
             );
         }

@@ -7,12 +7,16 @@
     "Reported Power (W)": "/measured_psu_power",
     "Powered Off": "/status_after/off",
     "Reported Faults": {
-        "filter_kind": "truthy_keys",
-        "root_pointer": "/status_after",
-        "include_fields": [],
-        "exclude_fields": [
-            "busy",
-            "off"
+        "pointer": "/status_after",
+        "effects": [
+            {
+                "kind": "truthy_keys",
+                "include_fields": [],
+                "exclude_fields": [
+                    "busy",
+                    "off"
+                ]
+            }
         ]
     }
 }

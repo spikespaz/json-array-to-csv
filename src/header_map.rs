@@ -1,84 +1,112 @@
 use indexmap::IndexMap;
 use serde::Deserialize;
-use serde_json::Value;
+use serde_json::{Result, Value};
 
 use crate::errors::{bail_on_value_type, missing_field_at_pointer};
+
+pub trait Effect {
+    fn apply(&self, value: &Value) -> Result<Value>;
+}
 
 pub type HeaderMap = IndexMap<String, FieldMapper>;
 
 #[derive(Deserialize)]
-#[serde(tag = "filter_kind")]
+#[serde(untagged)]
 pub enum FieldMapper {
+    PathPointer(String),
+    WithEffects {
+        pointer: String,
+        #[serde(default)]
+        effects: Vec<MapEffect>,
+    },
+}
+
+impl FieldMapper {
+    pub(crate) fn pointer(&self) -> &str {
+        match self {
+            Self::PathPointer(pointer) | Self::WithEffects { pointer, .. } => pointer,
+        }
+    }
+
+    pub(crate) fn effects(&self) -> Option<&Vec<MapEffect>> {
+        match self {
+            Self::PathPointer(_) => None,
+            Self::WithEffects { effects, .. } => Some(effects),
+        }
+    }
+
+    pub(crate) fn resolve(&self, record: &Value) -> Result<Value> {
+        let pointer = self.pointer();
+        let value = record
+            .pointer(pointer)
+            .ok_or_else(|| missing_field_at_pointer(pointer))?
+            .clone();
+        if let Some(effects) = self.effects() {
+            effects
+                .iter()
+                .try_fold(value, |value, effect| effect.apply(&value))
+        } else {
+            Ok(value)
+        }
+    }
+}
+
+#[derive(Deserialize)]
+#[serde(tag = "kind")]
+pub enum MapEffect {
     #[serde(rename = "truthy_keys")]
     TruthyKeys(TruthyKeys),
-    #[serde(untagged)]
-    PathPointer(String),
+}
+
+impl Effect for MapEffect {
+    fn apply(&self, value: &Value) -> Result<Value> {
+        match self {
+            MapEffect::TruthyKeys(effect) => effect.apply(value),
+        }
+    }
 }
 
 #[derive(Deserialize)]
 pub struct TruthyKeys {
-    root_pointer: String,
     #[serde(default)]
     include_fields: Vec<String>,
     #[serde(default)]
     exclude_fields: Vec<String>,
 }
 
-impl FieldMapper {
-    pub fn map_record(mapper: &FieldMapper, record: &Value) -> serde_json::Result<Value> {
-        match mapper {
-            FieldMapper::PathPointer(pointer) => record
-                .pointer(pointer)
-                .ok_or(missing_field_at_pointer(pointer))
-                .cloned(),
-            FieldMapper::TruthyKeys(transform) => {
-                transform_truthy_keys(transform, record).map(Value::from)
+impl TruthyKeys {
+    fn collect(params: &TruthyKeys, value: &Value) -> Result<Vec<String>> {
+        let TruthyKeys {
+            include_fields,
+            exclude_fields,
+        } = params;
+
+        let Some(object) = value.as_object() else {
+            bail_on_value_type!(&value, expected = "a JSON object");
+        };
+
+        let mut truthy_keys = Vec::new();
+
+        for (key, value) in object.into_iter() {
+            if !include_fields.is_empty() && !include_fields.contains(key) {
+                continue;
+            }
+            if !exclude_fields.is_empty() && exclude_fields.contains(key) {
+                continue;
+            }
+            if is_truthy(value) {
+                truthy_keys.push(key.clone());
             }
         }
+
+        Ok(truthy_keys)
     }
 }
 
-fn transform_truthy_keys(
-    transform: &TruthyKeys,
-    record: &Value,
-) -> serde_json::Result<Vec<String>> {
-    let TruthyKeys {
-        root_pointer,
-        include_fields,
-        exclude_fields,
-    } = transform;
-
-    if !record.is_object() {
-        bail_on_value_type!(&record, expected = "a JSON object");
-    };
-
-    let field_object = record
-        .pointer(root_pointer)
-        .ok_or_else(|| missing_field_at_pointer(root_pointer))
-        .and_then(|value| {
-            if let Some(object) = value.as_object() {
-                Ok(object)
-            } else {
-                bail_on_value_type!(value, expected = "a JSON object");
-            }
-        })?;
-
-    let mut truthy_keys = Vec::new();
-
-    for (key, value) in field_object.into_iter() {
-        if !include_fields.is_empty() && !include_fields.contains(key) {
-            continue;
-        }
-        if !exclude_fields.is_empty() && exclude_fields.contains(key) {
-            continue;
-        }
-        if is_truthy(value) {
-            dbg!(key);
-            truthy_keys.push(key.clone());
-        }
+impl Effect for TruthyKeys {
+    fn apply(&self, value: &Value) -> Result<Value> {
+        TruthyKeys::collect(self, value).map(Value::from)
     }
-
-    Ok(truthy_keys)
 }
 
 /// Returns `true` if "information is present" (the value is `true`, non-null, or not empty).
