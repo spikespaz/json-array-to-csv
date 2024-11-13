@@ -1,11 +1,12 @@
 mod cli_io;
+mod effects;
 mod errors;
-mod header_map;
+mod header_mappings;
 
 use bpaf::Bpaf;
 
 use self::cli_io::{Input, Output};
-use self::header_map::HeaderMappings;
+use self::header_mappings::HeaderMappings;
 
 /// Convert a JSON file (with top-level array) to a CSV table.
 #[derive(Clone, Debug, Bpaf)]
