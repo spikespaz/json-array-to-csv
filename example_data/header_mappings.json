@@ -65,6 +65,9 @@
                 ]
             },
             {
+                "kind": "truthy_filter"
+            },
+            {
                 "kind": "object_keys"
             }
         ]

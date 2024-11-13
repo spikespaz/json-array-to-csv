@@ -1,16 +1,14 @@
 mod filters;
 mod numbers;
 mod objects;
-mod truthy_keys;
 
 use serde::Deserialize;
 
 use serde_json::{Result, Value};
 
-use self::filters::FilterKeysEffect;
+use self::filters::{FilterKeysEffect, TruthyFilterEffect};
 use self::numbers::{CeilEffect, FloorEffect, RoundEffect};
 use self::objects::ObjectKeysEffect;
-use self::truthy_keys::TruthyKeys;
 
 pub trait Effect {
     fn apply(&self, value: &Value) -> Result<Value>;
@@ -52,10 +50,10 @@ impl_map_effect_enum! {
     pub enum MapEffect {
         #[serde(rename = "filter_keys")]
         FilterKeys(FilterKeysEffect),
+        #[serde(rename = "truthy_filter")]
+        TruthyFilter(TruthyFilterEffect),
         #[serde(rename = "object_keys")]
         ObjectKeys(ObjectKeysEffect),
-        #[serde(rename = "truthy_keys")]
-        TruthyKeys(TruthyKeys),
         #[serde(rename = "round")]
         Round(RoundEffect),
         #[serde(rename = "floor")]
