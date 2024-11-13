@@ -6,20 +6,10 @@ use crate::errors::bail_on_value_type;
 use super::Effect;
 
 #[derive(Deserialize)]
-pub struct TruthyKeys {
-    #[serde(default)]
-    include_fields: Vec<String>,
-    #[serde(default)]
-    exclude_fields: Vec<String>,
-}
+pub struct TruthyKeys;
 
-impl TruthyKeys {
-    fn collect(params: &TruthyKeys, value: &Value) -> Result<Vec<String>> {
-        let TruthyKeys {
-            include_fields,
-            exclude_fields,
-        } = params;
-
+impl Effect for TruthyKeys {
+    fn apply(&self, value: &Value) -> Result<Value> {
         let Some(object) = value.as_object() else {
             bail_on_value_type!(&value, expected = "a JSON object");
         };
@@ -27,24 +17,12 @@ impl TruthyKeys {
         let mut truthy_keys = Vec::new();
 
         for (key, value) in object.into_iter() {
-            if !include_fields.is_empty() && !include_fields.contains(key) {
-                continue;
-            }
-            if !exclude_fields.is_empty() && exclude_fields.contains(key) {
-                continue;
-            }
             if is_truthy(value) {
                 truthy_keys.push(key.clone());
             }
         }
 
-        Ok(truthy_keys)
-    }
-}
-
-impl Effect for TruthyKeys {
-    fn apply(&self, value: &Value) -> Result<Value> {
-        TruthyKeys::collect(self, value).map(Value::from)
+        Ok(truthy_keys.into())
     }
 }
 
