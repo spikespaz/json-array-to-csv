@@ -37,8 +37,6 @@ fn main() -> anyhow::Result<()> {
 
     let mut csv_writer = csv::Writer::from_writer(command.output.create(true)?);
 
-    dbg!(json_records.len());
-
     csv_writer.write_record(header_map.keys())?;
     let mut fields = Vec::with_capacity(header_map.keys().len());
 
