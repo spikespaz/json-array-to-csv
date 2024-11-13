@@ -5,7 +5,7 @@ mod header_map;
 use bpaf::Bpaf;
 
 use self::cli_io::{Input, Output};
-use self::header_map::HeaderMap;
+use self::header_map::HeaderMappings;
 
 /// Convert a JSON file (with top-level array) to a CSV table.
 #[derive(Clone, Debug, Bpaf)]
@@ -24,7 +24,7 @@ type JsonRecords = Vec<serde_json::Value>;
 fn main() -> anyhow::Result<()> {
     let command = parse_cli_env_args().run();
 
-    let header_map: HeaderMap = {
+    let header_map: HeaderMappings = {
         let deserializer = &mut serde_json::Deserializer::from_reader(command.header_map.open()?);
         serde_path_to_error::deserialize(deserializer)?
     };

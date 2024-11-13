@@ -8,7 +8,7 @@ pub trait Effect {
     fn apply(&self, value: &Value) -> Result<Value>;
 }
 
-pub type HeaderMap = IndexMap<String, FieldMapper>;
+pub type HeaderMappings = IndexMap<String, FieldMapper>;
 
 #[derive(Deserialize)]
 #[serde(untagged)]
