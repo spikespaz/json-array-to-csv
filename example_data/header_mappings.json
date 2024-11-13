@@ -65,7 +65,7 @@
                 ]
             },
             {
-                "kind": "truthy_keys"
+                "kind": "object_keys"
             }
         ]
     }
