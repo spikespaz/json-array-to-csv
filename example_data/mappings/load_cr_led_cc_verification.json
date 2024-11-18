@@ -1,0 +1,102 @@
+{
+    "Desired Current (A)": {
+        "pointer": "/desired_current",
+        "effects": [
+            {
+                "kind": "round",
+                "decimals": 2
+            }
+        ]
+    },
+    "Reported Current (A)": {
+        "pointer": "/measured_psu_current",
+        "effects": [
+            {
+                "kind": "round",
+                "decimals": 2
+            }
+        ]
+    },
+    "Recorded Load Current (A)": {
+        "pointer": "/recorded_load_current",
+        "effects": [
+            {
+                "kind": "round",
+                "decimals": 2
+            }
+        ]
+    },
+    "Expected Voltage (V)": {
+        "pointer": "/expected_voltage",
+        "effects": [
+            {
+                "kind": "round",
+                "decimals": 2
+            }
+        ]
+    },
+    "Reported Voltage (V)": {
+        "pointer": "/measured_psu_voltage",
+        "effects": [
+            {
+                "kind": "round",
+                "decimals": 2
+            }
+        ]
+    },
+    "Recorded Load Voltage (V)": {
+        "pointer": "/recorded_load_voltage",
+        "effects": [
+            {
+                "kind": "round",
+                "decimals": 2
+            }
+        ]
+    },
+    "Expected Power (W)": {
+        "pointer": "/expected_power",
+        "effects": [
+            {
+                "kind": "floor",
+                "decimals": 0
+            }
+        ]
+    },
+    "Reported Power (W)": {
+        "pointer": "/measured_psu_power",
+        "effects": [
+            {
+                "kind": "floor",
+                "decimals": 0
+            }
+        ]
+    },
+    "Recorded Load Power (W)": {
+        "pointer": "/recorded_load_power",
+        "effects": [
+            {
+                "kind": "floor",
+                "decimals": 0
+            }
+        ]
+    },
+    "Powered Off": "/status_after/off",
+    "Reported Faults": {
+        "pointer": "/status_after",
+        "effects": [
+            {
+                "kind": "filter_keys",
+                "exclude": [
+                    "busy",
+                    "off"
+                ]
+            },
+            {
+                "kind": "truthy_filter"
+            },
+            {
+                "kind": "object_keys"
+            }
+        ]
+    }
+}
