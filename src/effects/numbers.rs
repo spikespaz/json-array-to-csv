@@ -14,7 +14,9 @@ macro_rules! impl_round_effect {
 
         impl Effect for $EffectIdent {
             fn apply(&self, value: &Value) -> Result<Value> {
-                if let Some(float) = value.as_f64() {
+                if value.is_null() {
+                    Ok(value.clone())
+                } else if let Some(float) = value.as_f64() {
                     let shift = f64::powf(10.0, self.decimals as f64);
                     let number = $round_op(float * shift) / shift;
                     if self.decimals == 0 {
