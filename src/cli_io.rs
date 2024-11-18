@@ -1,4 +1,5 @@
 use std::convert::Infallible;
+use std::ffi::OsStr;
 use std::fs::File;
 use std::io::{self, BufReader, BufWriter, Read, StdinLock, StdoutLock, Write};
 use std::path::{Path, PathBuf};
@@ -8,6 +9,7 @@ use std::str::FromStr;
 pub enum Input {
     Stdin,
     File(PathBuf),
+    Directory(PathBuf),
 }
 
 #[derive(Clone, Debug, PartialEq, Default)]
@@ -15,6 +17,7 @@ pub enum Output {
     #[default]
     Stdout,
     File(PathBuf),
+    Directory(PathBuf),
 }
 
 #[derive(Debug)]
@@ -34,15 +37,29 @@ impl Input {
         let path = arg.into();
         if path == Path::new("-") {
             Self::Stdin
+        } else if path.is_dir() {
+            Self::Directory(path)
         } else {
             Self::File(path)
+        }
+    }
+
+    /// Similar to [`PathBuf::file_name`] but only returns a file name if
+    /// `&self` is not an existing directory. This differs from [`PathBuf::file_name`],
+    /// which will return a slice consisting of the last path segment, even if it is a directory.
+    pub fn file_name(&self) -> Option<&OsStr> {
+        match self {
+            Self::Stdin | Self::Directory(_) => None,
+            Self::File(path) => path.file_name(),
         }
     }
 
     pub fn open(&self) -> io::Result<InputReader> {
         match self {
             Self::Stdin => Ok(InputReader::Stdin(io::stdin().lock())),
-            Self::File(path) => Ok(InputReader::File(BufReader::new(File::open(path)?))),
+            Self::File(path) | Self::Directory(path) => {
+                Ok(InputReader::File(BufReader::new(File::open(path)?)))
+            }
         }
     }
 }
@@ -52,6 +69,8 @@ impl Output {
         let path = arg.into();
         if path == Path::new("-") {
             Self::Stdout
+        } else if path.is_dir() {
+            Self::Directory(path)
         } else {
             Self::File(path)
         }
@@ -62,7 +81,7 @@ impl Output {
     pub fn create(&self, new: bool) -> io::Result<OutputWriter> {
         match self {
             Self::Stdout => Ok(OutputWriter::Stdout(io::stdout().lock())),
-            Self::File(path) => Ok(OutputWriter::File(BufWriter::new(
+            Self::File(path) | Self::Directory(path) => Ok(OutputWriter::File(BufWriter::new(
                 File::options()
                     .write(true)
                     .create(!new)
@@ -106,7 +125,7 @@ impl From<Input> for Output {
     fn from(value: Input) -> Self {
         match value {
             Input::Stdin => Output::Stdout,
-            Input::File(path) => Output::File(path),
+            Input::File(path) | Input::Directory(path) => Output::File(path),
         }
     }
 }
