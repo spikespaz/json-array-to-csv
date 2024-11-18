@@ -1,0 +1,111 @@
+{
+    "Load Resistance (Ohm)": {
+        "pointer": "/set_load_resistance",
+        "effects": [
+            {
+                "kind": "round",
+                "decimals": 3
+            }
+        ]
+    },
+    "Desired Current (A)": {
+        "pointer": "/set_psu_current",
+        "effects": [
+            {
+                "kind": "round",
+                "decimals": 2
+            }
+        ]
+    },
+    "Reported Current (A)": {
+        "pointer": "/psu_current",
+        "effects": [
+            {
+                "kind": "round",
+                "decimals": 2
+            }
+        ]
+    },
+    "Recorded Load Current (A)": {
+        "pointer": "/load_current",
+        "effects": [
+            {
+                "kind": "round",
+                "decimals": 2
+            }
+        ]
+    },
+    "Expected Voltage (V)": {
+        "pointer": "/expected_voltage",
+        "effects": [
+            {
+                "kind": "round",
+                "decimals": 2
+            }
+        ]
+    },
+    "Reported Voltage (V)": {
+        "pointer": "/psu_voltage",
+        "effects": [
+            {
+                "kind": "round",
+                "decimals": 2
+            }
+        ]
+    },
+    "Recorded Load Voltage (V)": {
+        "pointer": "/load_voltage",
+        "effects": [
+            {
+                "kind": "round",
+                "decimals": 2
+            }
+        ]
+    },
+    "Expected Power (W)": {
+        "pointer": "/expected_power",
+        "effects": [
+            {
+                "kind": "floor",
+                "decimals": 0
+            }
+        ]
+    },
+    "Reported Power (W)": {
+        "pointer": "/psu_power",
+        "effects": [
+            {
+                "kind": "floor",
+                "decimals": 0
+            }
+        ]
+    },
+    "Recorded Load Power (W)": {
+        "pointer": "/load_power",
+        "effects": [
+            {
+                "kind": "floor",
+                "decimals": 0
+            }
+        ]
+    },
+    "Powered Off": "/status_after/off",
+    "Reported Faults": {
+        "pointer": "/status_after",
+        "effects": [
+            {
+                "kind": "filter_keys",
+                "exclude": [
+                    "busy",
+                    "off"
+                ]
+            },
+            {
+                "kind": "truthy_filter"
+            },
+            {
+                "kind": "object_keys"
+            }
+        ]
+    }
+}
