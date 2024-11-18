@@ -23,19 +23,27 @@ struct Command {
 type JsonRecords = Vec<serde_json::Value>;
 
 fn main() -> anyhow::Result<()> {
-    let command = parse_cli_env_args().run();
+    let Command {
+        input,
+        header_map,
+        mut output,
+    } = parse_cli_env_args().run();
+
+    if let (Output::Directory(path), Some(input_file_name)) = (&output, input.file_name()) {
+        output = Output::File(path.join(input_file_name).with_extension("csv"))
+    }
 
     let header_map: HeaderMappings = {
-        let deserializer = &mut serde_json::Deserializer::from_reader(command.header_map.open()?);
+        let deserializer = &mut serde_json::Deserializer::from_reader(header_map.open()?);
         serde_path_to_error::deserialize(deserializer)?
     };
 
     let json_records: JsonRecords = {
-        let deserializer = &mut serde_json::Deserializer::from_reader(command.input.open()?);
+        let deserializer = &mut serde_json::Deserializer::from_reader(input.open()?);
         serde_path_to_error::deserialize(deserializer)?
     };
 
-    let mut csv_writer = csv::Writer::from_writer(command.output.create(true)?);
+    let mut csv_writer = csv::Writer::from_writer(output.create(true)?);
 
     csv_writer.write_record(header_map.keys())?;
     let mut fields = Vec::with_capacity(header_map.keys().len());
